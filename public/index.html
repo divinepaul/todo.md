@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>todo.md</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css">
+    </link>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/keymap/vim.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/markdown/markdown.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/ayu-mirage.min.css">
+    </link>
+    <style>
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .CodeMirror {
+            height: 100%;
+            width: 100%;
+            padding-top: 20px;
+        }
+
+        .CodeMirror-lines {
+            padding-left: 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <script defer>
+        let editor = CodeMirror(document.body, {
+            tabSize: 4,
+            value: `loading..`,
+            mode: 'markdown',
+            theme: 'ayu-mirage'
+        });
+
+        function strikeThrough() {
+            document.querySelectorAll(".cm-link").forEach(element=>{
+                if(element.innerHTML.trim() == "[x]"){
+                    element.nextSibling.style.textDecoration = "line-through";
+                    element.style.textDecoration = "line-through";
+                    //element.nextSibling.style.marginLeft = element.nextSibling.innerHTML.trim();
+                } else {
+                    element.nextSibling.style.textDecoration = "none";
+                }
+            });
+        }
+
+        async function getText() {
+            let res = await fetch("/api/gettext");
+            let json = await res.json();
+            editor.setValue(json.file);
+            strikeThrough();
+        }
+        async function writeText(text) {
+            let rawResponse = await fetch("/api/writetext", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({"text":text})
+            });
+        }
+        editor.on("change", (event) => {
+            writeText(editor.getValue());
+            setTimeout(strikeThrough,100);
+        });
+
+        getText();
+    </script>
+</body>
+
+</html>
