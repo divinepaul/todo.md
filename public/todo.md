@@ -8,7 +8,7 @@
 - [x] Jeremy
 - [ ] Machine List 
     - [ ] Assign Paricipants to Machines
-- [ ] Round 3 Questions ( 4 )
+- [x] Round 3 Questions ( 4 )
 - [ ] ppt
 
 
@@ -71,3 +71,40 @@
 2. Paricipants are not allowed to use any sources.
 3. Parcipants must stay on hackerrank.com
 4. Accessing Other sites will be cause for disqualification.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

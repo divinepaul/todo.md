@@ -44,6 +44,7 @@
 
 <body>
     <script defer>
+
         let editor = CodeMirror(document.body, {
             tabSize: 4,
             value: `loading..`,
@@ -83,8 +84,12 @@
             writeText(editor.getValue());
             setTimeout(strikeThrough,100);
         });
+        editor.on("update", (event) => {
+            strikeThrough();
+        });
 
         getText();
+
     </script>
 </body>
 
