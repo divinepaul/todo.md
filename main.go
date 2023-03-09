@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/glebarez/go-sqlite"
 )
 
 var Db *sql.DB 
@@ -138,7 +138,7 @@ func main() {
 	router := gin.Default()
 
     var err error
-	Db, err = sql.Open("sqlite3", "todo.db")
+	Db, err = sql.Open("sqlite", "todo.db")
 	if err != nil {
 		log.Println(err)
 	}
