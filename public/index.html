@@ -5,42 +5,39 @@
     <title>todo.md</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.css">
+    </link>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/codemirror.min.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/keymap/vim.js"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/mode/markdown/markdown.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.52.2/theme/ayu-mirage.min.css">
+    </link>
     <style>
         * {
             margin: 0;
             box-sizing: border-box;
-            box-sizing: border-box;
-            background: #191d26;
-            color: white;
         }
+
         body,
         html {
             margin: 0;
             padding: 0;
             height: 100%;
             width: 100%;
-            padding: 8px;
-        }
-        .todo {
-            display: flex;
-            width: 100%;
-            padding: 5px 10px;
-            align-items: center;
         }
 
-        input[type="checkbox"] {
-            height: 20px;
-            width: 20px;
-            margin-right: 5px;
-            outline: none;
-            accent-color: #191d26; 
+        .CodeMirror {
+            height: 100%;
+            width: 100%;
+            padding-top: 20px;
         }
 
-        input[type="text"] {
-            font-size: 19px;
-            border: 0;
-            width: 100%;
-            outline: none;
+        .CodeMirror-lines {
+            padding-left: 20px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -48,80 +45,48 @@
 <body>
     <script defer>
 
-        async function inputTyped(event, id) {
+        let editor = CodeMirror(document.body, {
+            tabSize: 4,
+            value: `loading..`,
+            mode: 'markdown',
+            theme: 'ayu-mirage'
+        });
 
-            var key = event.keyCode || event.charCode;
-            
-            if( (key == 8 || key == 46) && event.target.value == "" ) {
-                let rawResponse = await fetch("/api/todo/delete", {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({"id": id})
-                });
-                await getText();
-                let input = [...document.querySelectorAll('input[type="text"]')].pop();
-                input.focus(); //sets focus to element
-                var val = input.value; //store the value of the element
-                input.value = ''; //clear the value of the element
-                input.value = val; //set that value back. 
-            } 
-            else if (event.keyCode == 13) {
-                let rawResponse = await fetch("/api/todo/", {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({"content": ""})
-                });
-                await getText();
-                let input = [...document.querySelectorAll('input[type="text"]')].pop();
-                input.focus(); //sets focus to element
-                var val = input.value; //store the value of the element
-                input.value = ''; //clear the value of the element
-                input.value = val; //set that value back. 
-            } else { 
-            let rawResponse = await fetch("/api/todo/update", {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({"id": id, "content": event.target.value})
-            });
-            }
-        }
-
-        async function onCheck(event,id) {
-            let rawResponse = await fetch("/api/todo/check", {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({"id": id, "checked": event.target.checked})
+        function strikeThrough() {
+            document.querySelectorAll(".cm-link").forEach(element=>{
+                if(element.innerHTML.trim() == "[x]"){
+                    element.nextSibling.style.textDecoration = "line-through";
+                    element.style.textDecoration = "line-through";
+                    //element.nextSibling.style.marginLeft = element.nextSibling.innerHTML.trim();
+                } else {
+                    element.nextSibling.style.textDecoration = "none";
+                }
             });
         }
 
         async function getText() {
-            let res = await fetch("/api/todo");
+            let res = await fetch("/api/gettext");
             let json = await res.json();
-            let todos = json.todos;
-
-            document.body.innerHTML = "";
-            todos.forEach(todo => {
-                let todoHtml = `
-                <div class="todo" id="${todo.id}">
-                    <input type="checkbox" onclick="onCheck(event,${todo.id})" ${todo.checked ? "checked" : ""}/>
-                    <input type="text" onkeyup="inputTyped(event,${todo.id})" value="${todo.content}"/>
-                </div>
-                `;
-                document.body.innerHTML += todoHtml;
+            editor.setValue(json.file);
+            strikeThrough();
+        }
+        async function writeText(text) {
+            let rawResponse = await fetch("/api/writetext", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({"text":text})
             });
         }
+        editor.on("change", (event) => {
+            writeText(editor.getValue());
+            setTimeout(strikeThrough,100);
+        });
+        editor.on("update", (event) => {
+            strikeThrough();
+        });
 
         getText();
 
