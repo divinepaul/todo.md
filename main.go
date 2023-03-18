@@ -1,37 +1,54 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"html/template"
 	"net/http"
 	"os"
+	"strings"
+	"github.com/gin-gonic/gin"
+	"github.com/shurcooL/github_flavored_markdown"
 )
 
 func sendIndex(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "Main website",
+    file, _ := os.ReadFile("/home/div/notes/todo.md");
+    content := string(github_flavored_markdown.Markdown(file))
+	c.HTML(http.StatusOK, "index.tmpl", gin.H{
+		"content": template.HTML(content), 
 	})
 }
 
-func sendMarkdown(c *gin.Context) {
-	file, _ := os.ReadFile("./public/todo.md")
-	c.JSON(200, gin.H{"file": string(file)})
+func sendSpecificFile(c *gin.Context) {
+    path := c.Param("path")
+    dirString := os.Args[1] 
+    if path == "/" {
+        file, _ := os.ReadFile(dirString + "index.md");
+        content := string(github_flavored_markdown.Markdown(file))
+        c.HTML(http.StatusOK, "index.tmpl", gin.H{
+            "content": template.HTML(content), 
+            "title": "index.md",
+        })
+    } else {
+        pathItems := strings.Split(path[1:], "/")
+        for _, item := range pathItems {
+            if(strings.Contains(item,".")){
+                dirString += item
+                file, _ := os.ReadFile(dirString);
+                content := string(github_flavored_markdown.Markdown(file))
+                c.HTML(http.StatusOK, "index.tmpl", gin.H{
+                    "content": template.HTML(content), 
+                    "title": item,
+                })
+            } else {
+                dirString += item + "/"
+            }
+        }
+    }
 }
 
-func writeMarkdown(c *gin.Context) {
-	type WriteRequest struct {
-        Text string `json:"text"`
-	}
-    var data WriteRequest
-    c.ShouldBind(&data)
-    os.WriteFile("./public/todo.md", []byte(data.Text), 0644)
-
-}
 func main() {
 	router := gin.Default()
-	router.LoadHTMLFiles("public/index.html")
-	router.GET("/api/gettext", sendMarkdown)
-	router.POST("/api/writetext", writeMarkdown)
-	router.Static("/static", "public")
-	router.GET("/", sendIndex)
+	router.LoadHTMLFiles("public/index.tmpl")
+    //router.Static("/static", "public")
+    router.GET("/*path", sendSpecificFile)
 	router.Run(":8080")
 }

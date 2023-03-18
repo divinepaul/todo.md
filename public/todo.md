@@ -6,7 +6,7 @@
 - [x] Chest numbers
 - [x] Print logo (20)
 - [x] Jeremy
-- [ ] Machine List 
+- [X] Machine List 
     - [ ] Assign Paricipants to Machines
 - [x] Round 3 Questions ( 4 )
 - [ ] ppt

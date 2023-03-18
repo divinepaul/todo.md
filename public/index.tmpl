@@ -1,0 +1,60 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script defer>
+        window.onload = function() {
+            var aCodes = document.getElementsByTagName('pre');
+            for (var i=0; i < aCodes.length; i++) {
+                hljs.highlightBlock(aCodes[i]);
+            }
+        };
+    </script>
+    <title>{{ .title }}</title>
+    <style>
+       * {
+           line-height: 1.5;
+           text-align: justify;
+       }
+       body {
+           padding: 0px;
+       }
+       .content > ul {
+           padding: 0px;
+       }
+       li:has(> input) {
+           list-style-type: none;
+       }
+       li:has(> input[type='checkbox']) {
+           color: blue;
+       }
+       li:has(> input[type='checkbox']:checked) {
+           color: gray;
+       }
+       pre {
+           padding: 10px;
+       }
+       .content {
+           width: 50%;
+           margin: 0 auto;
+       }
+
+       @media only screen and (max-width: 600px) {
+           .content {
+               width: 100%;
+           }
+           pre {
+               min-width: 95%;
+
+           }
+       }
+    </style>
+</head>
+<body>
+    <div class="content">
+		{{ .content }}
+    </div>
+</body>
+</html>
